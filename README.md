@@ -2,6 +2,13 @@
 
 Este proyecto documenta una practica de escalabilidad vertical en Azure usando una aplicacion Node.js que calcula la secuencia de Fibonacci. Se incluye el paso a paso de despliegue en una VM, pruebas de carga con Newman y analisis de comportamiento de CPU y tiempos de respuesta.
 
+## Repositorio
+
+- URL del repositorio: https://github.com/Rogerrdz/Arquitectura_de_Software_LAB09.git
+- Nombre del repositorio: Arquitectura_de_Software_LAB09
+- Carpeta raiz del laboratorio: LAB_09
+- Carpeta de la aplicacion: FibonacciApp
+
 ## Primeros Pasos
 
 Estas instrucciones le permitiran tener una copia del proyecto en ejecucion en su maquina local para desarrollo y pruebas. Revise la seccion de despliegue para conocer como publicarlo en una VM de Azure.
@@ -49,8 +56,8 @@ ssh scalability_lab@<IP_PUBLICA_VM>
 4. Clone el repositorio e instale las dependencias:
 
 ```
-git clone <TU_REPO>
-cd <TU_REPO>/FibonacciApp
+git clone https://github.com/Rogerrdz/Arquitectura_de_Software_LAB09.git
+cd Arquitectura_de_Software_LAB09/FibonacciApp
 npm install
 ```
 
