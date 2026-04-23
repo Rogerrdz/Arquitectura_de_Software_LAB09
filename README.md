@@ -136,7 +136,6 @@ Notas adicionales para desplegar el sistema en un entorno real.
 
 - El despliegue se realiza sobre una VM Linux en Azure.
 - Se debe abrir el puerto 3000 en el NSG para exponer el servicio.
-- Para disponibilidad en sesiones SSH cerradas, se recomienda usar un process manager (por ejemplo, `forever` o `pm2`).
 
 ## Construido Con
 
@@ -145,29 +144,6 @@ Notas adicionales para desplegar el sistema en un entorno real.
 * [big-integer](https://www.npmjs.com/package/big-integer) - Manejo de enteros grandes
 * [Newman](https://www.npmjs.com/package/newman) - Ejecucion de colecciones Postman por linea de comandos
 * [Microsoft Azure](https://azure.microsoft.com/) - Infraestructura de VM y monitoreo
-
-## Contribuciones
-
-Lea [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) para conocer el proceso de envio de pull requests.
-
-## Versionado
-
-Se utiliza [SemVer](http://semver.org/) para el versionado.
-
-## Autores
-
-* **Diego Andres Trivino** - *Elaboracion Laboratorio Inicial*
-* **Rogerrdz** - *Desarrollo del Laboratorio*
-
-## Licencia
-
-Este proyecto esta licenciado bajo ISC (ver `FibonacciApp/package.json`).
-
-## Agradecimientos
-
-* Escuela Colombiana de Ingenieria
-* Arquitecturas de Software - ARSW
-* Documentacion de Azure y herramientas de monitoreo
 
 ## Parte 1 - Respuestas a Preguntas
 
@@ -276,6 +252,17 @@ En escalamiento vertical puro la mejora es parcial: aumenta algo la capacidad, p
 ![Pregunta 11 - evidencia 5](images/Desarrollo/10_pregunta_4_ejecuciones_parte5.png)
 ![Pregunta 11 - evidencia 6](images/Desarrollo/10_pregunta_4_ejecuciones_parte6.png)
 
+## Autores
 
+* **Diego Andres Trivino** - *Elaboracion Laboratorio Inicial*
+* **Rogerrdz** - *Desarrollo del Laboratorio*
 
+## Licencia
 
+Este proyecto esta licenciado bajo ISC (ver `FibonacciApp/package.json`).
+
+## Agradecimientos
+
+* Escuela Colombiana de Ingenieria
+* Arquitecturas de Software - ARSW
+* Documentacion de Azure y herramientas de monitoreo
