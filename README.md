@@ -1,16 +1,14 @@
-# Project Title
-
-Escalamiento en Azure con Maquinas Virtuales (FibonacciApp)
+# Escalamiento en Azure con Maquinas Virtuales (FibonacciApp)
 
 Este proyecto documenta una practica de escalabilidad vertical en Azure usando una aplicacion Node.js que calcula la secuencia de Fibonacci. Se incluye el paso a paso de despliegue en una VM, pruebas de carga con Newman y analisis de comportamiento de CPU y tiempos de respuesta.
 
-## Getting Started
+## Primeros Pasos
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy this on Azure VM.
+Estas instrucciones le permitiran tener una copia del proyecto en ejecucion en su maquina local para desarrollo y pruebas. Revise la seccion de despliegue para conocer como publicarlo en una VM de Azure.
 
-### Prerequisites
+### Prerrequisitos
 
-What things you need to install the software and how to install them:
+Elementos que necesita instalar para ejecutar el software:
 
 - Cuenta de Azure con permisos para crear VMs
 - Cliente SSH
@@ -27,28 +25,28 @@ node --version
 npm --version
 ```
 
-### Installing
+### Instalacion
 
-A step by step series of examples that tell you how to get a development env running.
+A continuacion presento la serie de pasos que realice para dejar el entorno de desarrollo en funcionamiento.
 
 #### Parte 1 - Escalabilidad vertical (paso a paso)
 
-1. Crear la VM en Azure (grupo SCALABILITY_LAB, VM VERTICAL-SCALABILITY, Ubuntu, tamano B1ms/B1ls segun disponibilidad).
+1. Cree la VM en Azure (grupo SCALABILITY_LAB, VM VERTICAL-SCALABILITY, Ubuntu, tamano B1ms/B1ls segun disponibilidad).
 
 ![Creacion de VM](images/Desarrollo/Creacion_maquina_virtual.png)
 ![Propiedades de VM](images/Desarrollo/Propiedades_de_la_maquina_virtual.png)
 
-2. Conectarse por SSH a la VM:
+2. Me conecte por SSH a la VM:
 
 ```
 ssh scalability_lab@<IP_PUBLICA_VM>
 ```
 
-3. Instalar Node.js y npm en la VM.
+3. Instale Node.js y npm en la VM.
 
 ![Instalacion de Node en VM](images/Desarrollo/Descarga_node_en_ña_maquina_virtual.png)
 
-4. Clonar el repositorio e instalar dependencias:
+4. Clone el repositorio e instale las dependencias:
 
 ```
 git clone <TU_REPO>
@@ -58,7 +56,7 @@ npm install
 
 ![Repositorio clonado e instalacion npm](images/Desarrollo/Repositorio_clonado_Fibonacci_npm.png)
 
-5. Ejecutar la aplicacion:
+5. Ejecute la aplicacion:
 
 ```
 node FibonacciApp.js
@@ -66,12 +64,12 @@ node FibonacciApp.js
 
 ![App escuchando en puerto 3000](images/Desarrollo/FibonacciApp.js_corriendo_puerto_3000.png)
 
-6. Configurar regla de entrada para habilitar el puerto 3000 en networking.
+6. Configure la regla de entrada para habilitar el puerto 3000 en networking.
 
 ![Configuracion regla de entrada](images/Desarrollo/Configuracion_regla_de_entrada.png)
 ![Configuracion regla de entrada 2](images/Desarrollo/Configuracion_regla_de_entrada2.png)
 
-7. Validar endpoint:
+7. Valide el endpoint:
 
 ```
 http://<IP_PUBLICA_VM>:3000/fibonacci/6
@@ -79,16 +77,16 @@ http://<IP_PUBLICA_VM>:3000/fibonacci/6
 
 ![Prueba de endpoint](images/Desarrollo/Prueba_de_Endpoint.png)
 
-8. Medir tiempos del endpoint para valores altos de n (1000000 a 1090000) usando Network en el navegador.
+8. Medi los tiempos del endpoint para valores altos de n (1000000 a 1090000) usando Network en el navegador.
 
 ![Pruebas de velocidad](images/Desarrollo/pruebas_de_velocidad.png)
 
-9. Revisar metricas de CPU en Azure Monitor.
+9. Revise las metricas de CPU en Azure Monitor.
 
 ![Consumo CPU](images/Desarrollo/consumo_de_CPU_Maquina_Virtual_Despues_de_las_pruebas_solo_metrica_CPU.png)
 ![Metricas de VM](images/Desarrollo/Metricas_de_consumo_de_Maquina_Virtual_Despues_de_las_pruebas.png)
 
-10. Instalar Newman y ejecutar pruebas concurrentes.
+10. Instale Newman y ejecute pruebas concurrentes.
 
 ![Instalacion de Newman](images/Desarrollo/Instalacion_newman.png)
 
@@ -102,16 +100,16 @@ newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALAN
 ![Ejecucion Newman parte 3](images/Desarrollo/Ejecucion_de_pruebas_Newman_parte3.png)
 ![Ejecucion Newman parte 4](images/Desarrollo/Ejecucion_de_pruebas_Newman_parte4.png)
 
-11. Aplicar escalamiento vertical cambiando el tamano de VM y repetir pruebas.
+11. Aplique escalamiento vertical cambiando el tamano de la VM y repeti las pruebas.
 
 ![Cambio de tamano](images/Desarrollo/Cambio_tamaño_de_RAM_para_prueba_con_Newman.png)
 ![Metricas posteriores con Newman](images/Desarrollo/Metricas_de_consumo_de_Maquina_Virtual_Despues_de_las_pruebas_con_Newman.png)
 
-## Running the tests
+## Ejecucion de pruebas
 
-Explain how to run the automated tests for this system.
+En esta seccion se explica como ejecutar las pruebas del sistema.
 
-### Break down into end to end tests
+### Pruebas end-to-end
 
 Las pruebas E2E se realizan consumiendo el endpoint de Fibonacci y validando respuesta y tiempo.
 
@@ -125,7 +123,7 @@ Adicionalmente, para carga concurrente:
 newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALANCING_AZURE].postman_environment.json -n 10
 ```
 
-### And coding style tests
+### Pruebas de estilo de codigo
 
 Actualmente el proyecto no tiene linter/configuracion de estilo ni pruebas unitarias automatizadas.
 
@@ -135,44 +133,44 @@ npm test
 
 El script actual retorna mensaje de prueba no definida.
 
-## Deployment
+## Despliegue
 
-Add additional notes about how to deploy this on a live system.
+Notas adicionales para desplegar el sistema en un entorno real.
 
 - El despliegue se realiza sobre una VM Linux en Azure.
 - Se debe abrir el puerto 3000 en el NSG para exponer el servicio.
 - Para disponibilidad en sesiones SSH cerradas, se recomienda usar un process manager (por ejemplo, `forever` o `pm2`).
 
-## Built With
+## Construido Con
 
-* [Node.js](https://nodejs.org/) - Runtime principal
+* [Node.js](https://nodejs.org/) - Entorno de ejecucion principal
 * [Express](https://expressjs.com/) - Framework web
 * [big-integer](https://www.npmjs.com/package/big-integer) - Manejo de enteros grandes
-* [Newman](https://www.npmjs.com/package/newman) - Ejecucion de colecciones Postman por CLI
+* [Newman](https://www.npmjs.com/package/newman) - Ejecucion de colecciones Postman por linea de comandos
 * [Microsoft Azure](https://azure.microsoft.com/) - Infraestructura de VM y monitoreo
 
-## Contributing
+## Contribuciones
 
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on the process for submitting pull requests.
+Lea [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) para conocer el proceso de envio de pull requests.
 
-## Versioning
+## Versionado
 
-We use [SemVer](http://semver.org/) for versioning.
+Se utiliza [SemVer](http://semver.org/) para el versionado.
 
-## Authors
+## Autores
 
 * **Diego Andres Trivino** - *Elaboracion Laboratorio Inicial*
 * **Rogerrdz** - *Desarrollo del Laboratorio*
 
-## License
+## Licencia
 
-This project is licensed under the ISC License (see `FibonacciApp/package.json`).
+Este proyecto esta licenciado bajo ISC (ver `FibonacciApp/package.json`).
 
-## Acknowledgments
+## Agradecimientos
 
 * Escuela Colombiana de Ingenieria
 * Arquitecturas de Software - ARSW
-* Azure documentation and monitoring tools
+* Documentacion de Azure y herramientas de monitoreo
 
 ## Parte 1 - Respuestas a Preguntas
 
@@ -270,9 +268,9 @@ Hubo mejora parcial, pero no una solucion definitiva. En metricas se observan pr
 
 ### 11. Con 4 ejecuciones paralelas de Newman mejora porcentualmente?
 
-Con base en las evidencias de las 6 ejecuciones paralelas, el comportamiento mejora de forma limitada y no proporcional al aumento de carga. Aunque se observan peticiones exitosas, tambien aparecen fallos y variabilidad alta en latencias, por lo que el rendimiento porcentual no escala de manera lineal al pasar de 2 a 4 ejecuciones concurrentes.
+Con base en las evidencias de las ejecuciones paralelas, el comportamiento mejora de forma limitada pero no proporcional al aumento de carga. Aunque se observamos peticiones exitosas, tambien aparecen fallos y variabilidad alta en latencias, por lo que el rendimiento porcentual no escala de manera lineal al pasar de 2 a 4 ejecuciones concurrentes.
 
-En conclusion, en escalamiento vertical puro la mejora es parcial: aumenta algo la capacidad, pero se mantiene el cuello de botella de una sola instancia. Para una mejora porcentual sostenida conviene escalar horizontalmente.
+En escalamiento vertical puro la mejora es parcial: aumenta algo la capacidad, pero se mantiene el cuello de botella de una sola instancia. Para una mejora porcentual sostenida conviene escalar horizontalmente.
 
 ![Pregunta 11 - evidencia 1](images/Desarrollo/10_pregunta_4_ejecuciones_parte1.png)
 ![Pregunta 11 - evidencia 2](images/Desarrollo/10_pregunta_4_ejecuciones_parte2.png)
