@@ -130,16 +130,6 @@ Adicionalmente, para carga concurrente:
 newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALANCING_AZURE].postman_environment.json -n 10
 ```
 
-### Pruebas de estilo de codigo
-
-Actualmente el proyecto no tiene linter/configuracion de estilo ni pruebas unitarias automatizadas.
-
-```
-npm test
-```
-
-El script actual retorna mensaje de prueba no definida.
-
 ## Despliegue
 
 Notas adicionales para desplegar el sistema en un entorno real.
