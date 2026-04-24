@@ -1,6 +1,6 @@
 # Escalamiento en Azure con Maquinas Virtuales (FibonacciApp)
 
-Este proyecto documenta una practica de escalabilidad vertical en Azure usando una aplicacion Node.js que calcula la secuencia de Fibonacci. Se incluye el paso a paso de despliegue en una VM, pruebas de carga con Newman y analisis de comportamiento de CPU y tiempos de respuesta.
+Este proyecto documenta una practica de escalabilidad vertical y horizontal en Azure usando una aplicacion Node.js que calcula la secuencia de Fibonacci. Se incluye el paso a paso de despliegue en VM(s), pruebas de carga con Newman y analisis de comportamiento de CPU, disponibilidad y tiempos de respuesta.
 
 ## Repositorio
 
@@ -112,39 +112,6 @@ newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALAN
 ![Cambio de tamano](images/Desarrollo/Cambio_tamaño_de_RAM_para_prueba_con_Newman.png)
 ![Metricas posteriores con Newman](images/Desarrollo/Metricas_de_consumo_de_Maquina_Virtual_Despues_de_las_pruebas_con_Newman.png)
 
-## Ejecucion de pruebas
-
-En esta seccion se explica como ejecutar las pruebas del sistema.
-
-### Pruebas end-to-end
-
-Las pruebas E2E se realizan consumiendo el endpoint de Fibonacci y validando respuesta y tiempo.
-
-```
-http://<IP_PUBLICA_VM>:3000/fibonacci/1000000
-```
-
-Adicionalmente, para carga concurrente:
-
-```
-newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALANCING_AZURE].postman_environment.json -n 10
-```
-
-## Despliegue
-
-Notas adicionales para desplegar el sistema en un entorno real.
-
-- El despliegue se realiza sobre una VM Linux en Azure.
-- Se debe abrir el puerto 3000 en el NSG para exponer el servicio.
-
-## Construido Con
-
-* [Node.js](https://nodejs.org/) - Entorno de ejecucion principal
-* [Express](https://expressjs.com/) - Framework web
-* [big-integer](https://www.npmjs.com/package/big-integer) - Manejo de enteros grandes
-* [Newman](https://www.npmjs.com/package/newman) - Ejecucion de colecciones Postman por linea de comandos
-* [Microsoft Azure](https://azure.microsoft.com/) - Infraestructura de VM y monitoreo
-
 ## Parte 1 - Respuestas a Preguntas
 
 ### 1. Cuantos y cuales recursos crea Azure junto con la VM?
@@ -251,6 +218,237 @@ En escalamiento vertical puro la mejora es parcial: aumenta algo la capacidad, p
 ![Pregunta 11 - evidencia 4](images/Desarrollo/10_pregunta_4_ejecuciones_parte4.png)
 ![Pregunta 11 - evidencia 5](images/Desarrollo/10_pregunta_4_ejecuciones_parte5.png)
 ![Pregunta 11 - evidencia 6](images/Desarrollo/10_pregunta_4_ejecuciones_parte6.png)
+
+#### Parte 2 - Escalabilidad horizontal con Load Balancer (paso a paso)
+
+Antes de continuar, puede eliminar el grupo de recursos anterior para evitar gastos adicionales y realizar la actividad en un grupo de recursos limpio.
+
+##### Limitaciones encontradas antes de crear las VMs
+
+- El tamano requerido en el laboratorio (`B1ls`) no estaba disponible en zona 1 para esta suscripcion/regionalidad; solo se permitia en zonas 2 y 3.
+- La cuota de IPs publicas estandar disponible en la suscripcion fue de 3, por lo que solo pude asignar IP publica al balanceador, VM1 y VM2.
+- Por la restriccion anterior, VM3 se aprovisiono para trabajar dentro de la red privada y atender trafico por backend pool del balanceador.
+
+![Limitacion de tamano por zona](images/Desarrollo/Limitacion_1_B1ls_ningun_tamaño_disponible_para_zona_1.png)
+![Limitacion de IPs publicas](images/Desarrollo/Limitacion_2_No_se_puede_crear_VM3_suscripcion_estudiante_solo_deja_tene_3_ips_publicas_Load_B,VM1,VM2.png)
+
+##### Crear el Balanceador de Carga
+
+El Balanceador de Carga es un recurso clave para habilitar la escalabilidad horizontal del sistema.
+
+1. Cree el Load Balancer en Azure.
+
+![Creacion Load Balancer](images/Desarrollo/Creacion_balanceador_de_carga.png)
+
+2. Cree el Backend Pool.
+
+![Creacion Backend Pool](images/Desarrollo/Grupo_de_backend_creado.png)
+
+3. Cree el Health Probe.
+
+![Creacion Health Probe](images/Desarrollo/Creacion_Sondeo_de_Estado%20.png)
+
+4. Cree la Load Balancing Rule.
+
+![Creacion Load Balancing Rule](images/Desarrollo/Regla_de_equilibrio_de_carga_agregada.png)
+
+5. Cree la Virtual Network en el mismo grupo de recursos.
+
+![Creacion Virtual Network](images/Desarrollo/Creacion_red_virtual.png)
+
+##### Crear las maquinas virtuales (Nodos)
+
+Ahora se crean 3 VMs (VM1, VM2 y VM3) y luego se agregan al balanceador de carga.
+
+1. Configuracion basica de la VM (zona de disponibilidad por nodo).
+
+![Configuracion basica VM](images/Desarrollo/Creacion_VM1.png)
+
+2. Configuracion de networking: use la Virtual Network y Subnet creadas previamente. Asigne IP publica segun la disponibilidad de cuota y habilite redundancia de zona cuando aplique.
+
+![Configuracion networking VM](images/Desarrollo/Creacion_VM2.png)
+
+3. Para el Network Security Group seleccione modo avanzado y cree una regla de entrada (Inbound) para habilitar trafico por el puerto 3000.
+
+![Creacion NSG](images/Desarrollo/Grupo_de_seguridad_de_red_VM1.png)
+
+4. Asigne la VM al balanceador de carga.
+
+![Asociacion VM con LB](images/Desarrollo/VM1_asignada_a_balanceador_de_carga.png)
+
+5. Finalice creacion de la VM y repita el proceso para VM2 y VM3.
+
+![IP del balanceador y nodos](images/Desarrollo/ip_del_Load_balancer_en_las_dos_maquinas_para_pruebas_con_newman.png)
+
+##### Instalacion de la aplicacion en cada VM
+
+Ejecute en cada VM (ajustando usuario/ruta segun el nombre real de la maquina):
+
+```
+git clone https://github.com/daprieto1/ARSW_LOAD-BALANCING_AZURE.git
+
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
+source /home/<usuario_vm>/.bashrc
+nvm install node
+
+cd ARSW_LOAD-BALANCING_AZURE/FibonacciApp
+npm install
+
+npm install forever -g
+forever start FibonacciApp.js
+```
+
+Este proceso se realizo manualmente VM por VM. Para automatizar este aprovisionamiento se pueden usar herramientas como Azure Resource Manager, imagenes de disco, Terraform, Vagrant, Packer, Puppet o Ansible.
+
+##### Probar el resultado final de la infraestructura
+
+El endpoint de acceso del sistema es la IP publica del Load Balancer:
+
+```
+http://52.155.223.248/
+http://52.155.223.248/fibonacci/1
+```
+
+![Prueba endpoint raiz en balanceador](images/Desarrollo/prueba_balanceador_de_carga_ip.png)
+![Prueba endpoint fibonacci en balanceador](images/Desarrollo/prueba_balanceador_de_carga_ip_fibonacci.png)
+
+Luego ejecute pruebas de carga con Newman (como en Parte 1) y compare resultados de rendimiento y costo entre:
+
+- Infraestructura con escalabilidad vertical (1 VM de mayor tamano).
+- Infraestructura con escalabilidad horizontal (varias VMs detras de Load Balancer).
+
+Para el experimento con 4 VMs, incremente tambien la concurrencia de ejecucion Newman a 4 procesos paralelos:
+
+```
+newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALANCING_AZURE].postman_environment.json -n 10 &
+newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALANCING_AZURE].postman_environment.json -n 10 &
+newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALANCING_AZURE].postman_environment.json -n 10 &
+newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALANCING_AZURE].postman_environment.json -n 10
+```
+
+##### Informe comparativo (Parte 1 vs Parte 2)
+
+| Criterio | Parte 1 (Vertical) | Parte 2 (Horizontal con LB) |
+|---|---|---|
+| Latencia bajo concurrencia | Alta variabilidad y picos altos | Menor variabilidad por distribucion de carga |
+| Tasa de exito | Afectada por saturacion en nodo unico | Mayor tasa de exito al repartir peticiones |
+| Punto unico de falla | Si | Se reduce significativamente |
+| Escalado | Cambiar SKU (downtime posible) | Agregar/quitar nodos progresivamente |
+| Costo | Menor complejidad, pero limitado en crecimiento | Mayor costo base (LB + mas VMs), mejor relacion costo/rendimiento bajo carga |
+
+##### Informe de newman 1 (Punto 2)
+
+Observaciones principales del comportamiento con balanceo horizontal:
+
+1. Se incrementa la cantidad de peticiones exitosas cuando la carga se reparte entre varios nodos.
+2. El uso de CPU por VM se distribuye de forma mas uniforme frente al escenario de nodo unico.
+3. La probabilidad de timeout/errores por saturacion disminuye al aumentar el numero de instancias.
+4. Al pasar de 2 a 4 ejecuciones paralelas de Newman, el sistema responde mejor porque existe mayor capacidad de procesamiento concurrente en backend pool.
+
+![Newman paralelo VM1 y VM2 - parte 1](images/Desarrollo/prueba_newman_en_paralelo_VM1_y_VM2_part1.png)
+![Newman paralelo VM1 y VM2 - parte 2](images/Desarrollo/prueba_newman_en_paralelo_VM1_y_VM2_part2.png)
+
+## Parte 2 - Respuestas a Preguntas
+
+### 1. Tipos de balanceadores en Azure, SKU e IP publica
+
+- Tipos de balanceadores:
+	- Public Load Balancer: expone servicios hacia Internet.
+	- Internal Load Balancer: balancea trafico privado dentro de una VNet.
+- SKU:
+	- Basic: menor capacidad, menos caracteristicas, menor resiliencia.
+	- Standard: mayor capacidad, mejor seguridad/escala, recomendado para produccion.
+- Por que necesita IP publica:
+	- Para recibir trafico entrante desde clientes externos y enrutarlo a las VMs del backend.
+
+### 2. Proposito del Backend Pool
+
+El Backend Pool define el conjunto de instancias (NICs/VMs) que recibiran trafico distribuido por el balanceador.
+
+### 3. Proposito del Health Probe
+
+El Health Probe verifica periodicamente el estado de cada nodo (por ejemplo, puerto o endpoint). Si una instancia falla, deja de recibir trafico hasta recuperarse.
+
+### 4. Proposito de la Load Balancing Rule y persistencia de sesion
+
+- La Load Balancing Rule define como se mapea trafico de frontend (IP/puerto) hacia backend (pool/puerto/protocolo/probe).
+- Tipos de persistencia de sesion en Azure Load Balancer:
+	- None (5-tuple hash): distribucion sin afinidad fija de cliente.
+	- Client IP: afinidad por IP de origen.
+	- Client IP and Protocol: afinidad por IP de origen y protocolo.
+- Importancia:
+	- Puede ayudar a apps con estado en memoria por nodo.
+	- Si se usa excesivamente, puede desbalancear carga y afectar escalabilidad horizontal.
+
+### 5. Virtual Network, Subnet, address space y address range
+
+- Virtual Network (VNet): red privada logica en Azure para aislar y conectar recursos.
+- Subnet: segmento de la VNet para organizar y aplicar politicas/ruteo.
+- Address space: bloque CIDR total de la VNet (ejemplo: `10.0.0.0/16`).
+- Address range de subnet: sub-bloques dentro del address space (ejemplo: `10.0.1.0/24`).
+
+Sirven para planear direccionamiento IP, separar capas y evitar conflictos de red.
+
+### 6. Availability Zone e IP zone-redundant
+
+- Availability Zone: datacenters fisicamente separados dentro de una misma region.
+- Se seleccionan 3 zonas para aumentar tolerancia a fallos y disponibilidad.
+- IP zone-redundant: recurso de IP publica que se mantiene disponible frente a falla de una zona, no atado a una sola.
+
+### 7. Proposito del Network Security Group
+
+El NSG controla trafico entrante/saliente por reglas (IP, puerto, protocolo, prioridad). En este laboratorio se habilito el puerto `3000` para permitir el acceso a la app.
+
+## Diagrama de despliegue (Parte 2)
+
+```mermaid
+flowchart LR
+		U[Cliente] --> PIPLB[IP publica del Load Balancer]
+		PIPLB --> LB[Azure Load Balancer Standard]
+		LB --> BP[Backend Pool]
+		BP --> VM1[VM1 - Zona 1]
+		BP --> VM2[VM2 - Zona 2]
+		BP --> VM3[VM3 - Zona 3]
+
+		subgraph VNET[Virtual Network]
+			VM1
+			VM2
+			VM3
+		end
+
+		NSG[Network Security Group\nInbound 3000] -. protege .-> VNET
+		HP[Health Probe] --> LB
+		LBR[Load Balancing Rule 80/3000] --> LB
+```
+
+### Pruebas end-to-end
+
+Las pruebas E2E se realizan consumiendo el endpoint de Fibonacci y validando respuesta y tiempo.
+
+```
+http://<IP_PUBLICA_VM>:3000/fibonacci/1000000
+```
+
+Adicionalmente, para carga concurrente:
+
+```
+newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALANCING_AZURE].postman_environment.json -n 10
+```
+
+## Despliegue
+
+Notas adicionales para desplegar el sistema en un entorno real.
+
+- El despliegue se realiza sobre una VM Linux en Azure.
+- Se debe abrir el puerto 3000 en el NSG para exponer el servicio.
+
+## Construido Con
+
+* [Node.js](https://nodejs.org/) - Entorno de ejecucion principal
+* [Express](https://expressjs.com/) - Framework web
+* [big-integer](https://www.npmjs.com/package/big-integer) - Manejo de enteros grandes
+* [Newman](https://www.npmjs.com/package/newman) - Ejecucion de colecciones Postman por linea de comandos
+* [Microsoft Azure](https://azure.microsoft.com/) - Infraestructura de VM y monitoreo
 
 ## Autores
 
