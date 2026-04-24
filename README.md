@@ -258,7 +258,7 @@ El Balanceador de Carga es un recurso clave para habilitar la escalabilidad hori
 
 ##### Crear las maquinas virtuales (Nodos)
 
-Ahora se crean 3 VMs (VM1, VM2 y VM3) y luego se agregan al balanceador de carga.
+Ahora se crean 2 VMs (VM1 y VM2) y luego se agregan al balanceador de carga.
 
 1. Configuracion basica de la VM (zona de disponibilidad por nodo).
 
@@ -276,7 +276,7 @@ Ahora se crean 3 VMs (VM1, VM2 y VM3) y luego se agregan al balanceador de carga
 
 ![Asociacion VM con LB](images/Desarrollo/VM1_asignada_a_balanceador_de_carga.png)
 
-5. Finalice creacion de la VM y repita el proceso para VM2 y VM3.
+5. Finalice creacion de la VM y repeti el proceso para VM2.
 
 ![IP del balanceador y nodos](images/Desarrollo/ip_del_Load_balancer_en_las_dos_maquinas_para_pruebas_con_newman.png)
 
@@ -298,6 +298,10 @@ npm install forever -g
 forever start FibonacciApp.js
 ```
 
+- Evidencia 
+
+![Instalacion de FibonacciApp en VM1 y VM2 - parte 1](images/Desarrollo/Instalacion_fibonacciApp_VM1_y_VM2_part1.png)
+![Instalacion de FibonacciApp en VM1 y VM2 - parte 2](images/Desarrollo/Instalacion_fibonacciApp_VM1_y_VM2_part2.png)
 Este proceso se realizo manualmente VM por VM. Para automatizar este aprovisionamiento se pueden usar herramientas como Azure Resource Manager, imagenes de disco, Terraform, Vagrant, Packer, Puppet o Ansible.
 
 ##### Probar el resultado final de la infraestructura
@@ -316,15 +320,6 @@ Luego ejecute pruebas de carga con Newman (como en Parte 1) y compare resultados
 
 - Infraestructura con escalabilidad vertical (1 VM de mayor tamano).
 - Infraestructura con escalabilidad horizontal (varias VMs detras de Load Balancer).
-
-Para el experimento con 4 VMs, incremente tambien la concurrencia de ejecucion Newman a 4 procesos paralelos:
-
-```
-newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALANCING_AZURE].postman_environment.json -n 10 &
-newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALANCING_AZURE].postman_environment.json -n 10 &
-newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALANCING_AZURE].postman_environment.json -n 10 &
-newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALANCING_AZURE].postman_environment.json -n 10
-```
 
 ##### Informe comparativo (Parte 1 vs Parte 2)
 
@@ -399,7 +394,7 @@ Sirven para planear direccionamiento IP, separar capas y evitar conflictos de re
 
 El NSG controla trafico entrante/saliente por reglas (IP, puerto, protocolo, prioridad). En este laboratorio se habilito el puerto `3000` para permitir el acceso a la app.
 
-## Diagrama de despliegue (Parte 2)
+## Diagrama de despliegue 
 
 ```mermaid
 flowchart LR
@@ -439,8 +434,8 @@ newman run ARSW_LOAD-BALANCING_AZURE.postman_collection.json -e [ARSW_LOAD-BALAN
 
 Notas adicionales para desplegar el sistema en un entorno real.
 
-- El despliegue se realiza sobre una VM Linux en Azure.
-- Se debe abrir el puerto 3000 en el NSG para exponer el servicio.
+- El despliegue se realiza sobre varias VM Linux en Azure con un Balanceador de carga que las antecede.
+- Se debe abrir el puerto 3000 en el NSG para exponer el servicio en cada una de estas.
 
 ## Construido Con
 
